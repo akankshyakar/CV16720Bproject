@@ -33,9 +33,9 @@ device = torch.device("cuda" if use_cuda else "cpu")
 
 
 
+
 WORD2VECPATH    = "../data/class_vectors.npy"
 DATAPATH        = "../data/zeroshot_data.pkl"
-MODELPATH       = "../model/"
 # criterion=nn.CrossEntropyLoss()
 criterion=nn.NLLLoss()
 NUM_CLASS = 15
@@ -57,7 +57,7 @@ class MyNet(nn.Module):
         super(MyNet, self).__init__()
         self.fc1 = nn.Linear(4096, 800)
         self.relu1 = nn.ReLU()
-        self.drop1 = nn.Dropout2d(0.8)
+        self.drop1 = nn.Dropout2d(0.5)
         self.fc2 = nn.Linear(800, 300)
         # self.relu2 = nn.ReLU()
         # self.drop2 = nn.Dropout2d(0.5)
@@ -72,7 +72,7 @@ class MyNet(nn.Module):
         # print(x.shape)
         x = self.relu1(self.fc1(x))
 #         print(x.shape)
-        x=self.drop1(x)
+        # x=self.drop1(x)
 #         print(x.shape)
         x=self.relu3(self.fc2(x))
 #         print(x.shape)
@@ -97,7 +97,7 @@ def custom_kernel_init(shape,dtype=None):
     return vectors
 
 def train_mynet(trainset_loader,testset_loader):
-    maxepoch=65
+    maxepoch=80
     losslis=[]
     acclis=[]
     validlis=[]
@@ -115,7 +115,7 @@ def train_mynet(trainset_loader,testset_loader):
     mymodel.fc4.weight.requires_grad = False
     mymodel.softmax.requires_grad = False
 
-    optimizer = optim.Adam(mymodel.parameters(), lr=5e-6)
+    optimizer = optim.Adam(mymodel.parameters(), lr=5e-5)
     train_save(mymodel,maxepoch, save_interval, log_interval,trainset_loader,testset_loader,device,optimizer,losslis,acclis,validlis,losslis_val,False)
 
 
@@ -125,11 +125,11 @@ if __name__ == "__main__":
     train_mynet(trainset_loader,validset_loader)
     #zsl model
     mymodel = MyNet().to(device)
-    optimizer = optim.Adam(mymodel.parameters(), lr=5e-6)
-    checkpoint=load_checkpoint('model/zsl_-7000.pth', mymodel, optimizer)
+    optimizer = optim.Adam(mymodel.parameters(), lr=5e-5)
+    checkpoint=load_checkpoint('model/zsl_-6780_okay.pth', mymodel, optimizer)
     modulelist = list(mymodel.modules())
     model = nn.Sequential(*modulelist[1:-3])
-    # print(model)
+    print(model)
     x_zsl=torch.tensor(x_zsl).float()
     model.eval() 
     pred_zsl = model(x_zsl)
@@ -144,7 +144,7 @@ if __name__ == "__main__":
     classnames= list(classnames)
     vectors = np.asarray(vectors, dtype=np.float)
 
-    tree        = KDTree(vectors)
+    tree= KDTree(vectors)
 
     top5, top3, top1 = 0, 0, 0
     for i, pred in enumerate(pred_zsl):

@@ -36,9 +36,7 @@ with open('../txtfile/train_classes.txt', 'r') as infile:
 with open('../txtfile/zsl_classes.txt', 'r') as infile:
     zsl_classes = [str.strip(line) for line in infile]
 
-WORD2VECPATH    = "../data/class_vectors.npy"
-DATAPATH        = "../data/zeroshot_data.pkl"
-MODELPATH       = "../model/"
+DATAPATH= "../data/zeroshot_data.pkl"
 # criterion=nn.CrossEntropyLoss()
 criterion=nn.NLLLoss()
 
@@ -135,6 +133,7 @@ def get_features(image_name):
     # t_img = Variable(normalize(ToTensor(scaler(img))).unsqueeze(0))
     # print(t_img.shape)
     vgg16 = models.vgg16(pretrained='imagenet')
+    
     # print (vgg16)
     features = list(vgg16.classifier.children())[:1]
     vgg16.classifier = nn.Sequential(*features)
@@ -190,8 +189,8 @@ def valid(model,validset_loader,device,validlis,losslis_val,reshape=False):
 def train_save(model,epoch, save_interval, log_interval,trainset_loader,validset_loader,device,optimizer,losslis,acclis,validlis,losslis_val,reshape=False):
     # print(model)
     layers = [x for x in model.parameters()]
-    for l in layers:
-        print(l.shape,l.requires_grad)
+    # for l in layers:
+    #     print(l.shape,l.requires_grad)
     print("in train_save")
     model.train()  # set training mode
     iteration = 0

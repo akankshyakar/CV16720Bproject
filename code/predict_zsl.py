@@ -11,13 +11,10 @@ from zsl_train import *
 
 
 WORD2VECPATH    = "../data/class_vectors.npy"
-MODELPATH       = "../model/"
 
 def main(img_file):
 
-    # if len(argv) != 1:
-    #     print("Give input image to compute")
-    #     exit()
+
 
     # READ IMAGE
     # img_file = argv[0]
@@ -30,11 +27,11 @@ def main(img_file):
     # print("iam anew")
     mymodel = MyNet().to(device)
     # print(mymodel)
-    optimizer = optim.Adam(mymodel.parameters(), lr=5e-5)
-    checkpoint=load_checkpoint('model/zsl_-7000.pth', mymodel, optimizer)
+    optimizer = optim.Adam(mymodel.parameters(), lr=1e-4)
+    checkpoint=load_checkpoint('model/zsl_-6780_okay.pth', mymodel, optimizer)
     modulelist = list(mymodel.modules())
     model = nn.Sequential(*modulelist[1:-3])
-    # print(model)
+    print(model)
     img_feature=torch.tensor(img_feature).float()
     # print(img_feature[0])
     model.eval() 
@@ -54,7 +51,7 @@ def main(img_file):
     tree= KDTree(vectors)
 
     dist, index= tree.query(pred_zsl, k=5)
-    # print(dist, index)
+    print(dist, index)
     pred_labels= [classnames[idx] for idx in index[0]]
 
     # PRINT RESULT
@@ -66,10 +63,15 @@ def main(img_file):
     return
 
 if __name__ == '__main__':
-    # main(sys.argv[1:])
+    # main(sys.argv[1])
+    # if len(argv) != 1:
+    #     print("Give input image to compute")
+    #     exit()
 
-
-
-    for f in os.listdir("../test_images"):
-        # print(f)
-        main("../test_images/"+f)
+    if (len(sys.argv)!=1):
+        print(sys.argv[1])
+        main(sys.argv[1])
+    else:
+        for f in os.listdir("../test_images"):
+            # print(f)
+            main("../test_images/"+f)
